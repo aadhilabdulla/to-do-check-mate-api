@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {cors : true});
 
   const config = new DocumentBuilder()
     .setTitle("ToDO CheckMate API")
@@ -13,7 +13,7 @@ async function bootstrap() {
     .build()
   
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document); 
+  SwaggerModule.setup('api', app, document); 
 
   let currentPort = process.env.PORT ?? 3000
   await app.listen(currentPort);
