@@ -14,6 +14,25 @@ export class AuthService {
   async createUser(signupDto : SignupDto){
     try {
       const { email, password } = signupDto;
+      if(!email){
+        throw new HttpException(
+          {
+            "success" : false,
+            "message" : "Please enter Email"
+          },
+          HttpStatus.NOT_FOUND
+        )
+      }
+
+      if(password.length < 8){
+        throw new HttpException(
+          {
+            "success" : false,
+            "message" : "Password should be atleast 8 characters"
+          },
+          HttpStatus.UNAUTHORIZED
+        )
+      }
       const existingUser = await this.userModel.findOne({email : email});
       if(existingUser){
         throw new HttpException(
