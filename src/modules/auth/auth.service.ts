@@ -3,6 +3,7 @@ import { SignupDto } from './dto/signup.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from 'src/database/models/User.model';
 import { Model } from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
@@ -43,7 +44,9 @@ export class AuthService {
           HttpStatus.CONFLICT
         )
       }
-      const user = new this.userModel({ email : email, password : password});
+      const salt = await bcrypt.genSalt(10);
+      const encryptedPassword = await bcrypt.hash(password,salt);
+      const user = new this.userModel({ email : email, password : encryptedPassword});
       await user.save();
       return {
         "success" : true,

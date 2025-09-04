@@ -5,9 +5,9 @@ export class SignupDto{
 
     @ApiProperty({ default : 'aadhil242@gmail.com'})
     @IsEmail()
-    email : String;
+    email : string;
 
     @ApiProperty({ default : 'password'})
     @IsStrongPassword()
-    password : String;
+    password : string;
 }
