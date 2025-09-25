@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from 'src/database/models/User.model';
 import { Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -52,6 +53,60 @@ export class AuthService {
         "success" : true,
         "message" : "Signup successful"
       }
+
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async loginUser(loginDto : LoginDto) {
+    try {
+      const { email, password } = loginDto;
+
+      if(!email){
+        throw new HttpException(
+          {
+            "success" : false,
+            "message" : "Please enter Email"
+          },
+          HttpStatus.NOT_FOUND
+        )
+      }
+
+      if(!password) {
+        throw new HttpException(
+          {
+            "success" : false,
+            "message" : "Please enter Password"
+          },
+          HttpStatus.NOT_FOUND
+        )
+      }
+
+      const user = await this.userModel.findOne({email : email});
+      if(!user){
+        throw new HttpException (
+          {
+            "success" : false,
+            "message" : "Please create new account"
+          },
+          HttpStatus.BAD_REQUEST
+        )
+      }
+      const hashedPassword = user.password;
+      const isLoginAuthorized = await bcrypt.compare(password , hashedPassword)
+
+      if(isLoginAuthorized) {
+        return {
+          "success" : true,
+          "message" : "Login successful"
+        }
+      }
+      return {
+        "success" : false,
+        "message" : "Wrong email or password"
+      }
+
 
     } catch (error) {
       throw error
