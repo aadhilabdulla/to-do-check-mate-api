@@ -5,12 +5,14 @@ import { User, UserDocument } from 'src/database/models/User.model';
 import { Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name)
-    private userModel : Model<UserDocument>
+    private userModel : Model<UserDocument>,
+    private jwtService : JwtService
   ){}
 
   async createUser(signupDto : SignupDto){
@@ -97,9 +99,12 @@ export class AuthService {
       const isLoginAuthorized = await bcrypt.compare(password , hashedPassword)
 
       if(isLoginAuthorized) {
+        const payload = { sub : user._id , email : user.email }
+        const access_token = this.jwtService.sign(payload)
         return {
           "success" : true,
-          "message" : "Login successful"
+          "message" : "Login successful",
+          access_token
         }
       }
       return {
